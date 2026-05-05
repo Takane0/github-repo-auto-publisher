@@ -5,7 +5,7 @@ import time
 import unittest
 from unittest import mock
 from git import Repo
-from main import ChangeHandler, stage_commit_push
+from main import ChangeHandler, stage_commit_push, parse_gitignore, match_gitignore
 
 class TestPublisher(unittest.TestCase):
     def setUp(self):
@@ -15,16 +15,31 @@ class TestPublisher(unittest.TestCase):
         (open(os.path.join(self.test_dir, 'test.txt'), 'w')).close()
         self.repo.git.add('--all')
         self.repo.index.commit('init')
-
+    
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
     def test_change_handler_trigger(self):
-        handler = ChangeHandler(self.repo)
+        handler = ChangeHandler(self.repo, [], self.test_dir)
         event = mock.Mock()
+        event.src_path = os.path.join(self.test_dir, 'afile.txt')
         handler.on_any_event(event)
         self.assertTrue(handler.should_commit())
         self.assertFalse(handler.should_commit())
+
+    def test_gitignore_parser_and_match(self):
+        # Simulate .gitignore content
+        patterns = ['node_modules/', '*.tmp', 'secret.txt']
+        root = self.test_dir
+        node_mod_dir = os.path.join(root, 'node_modules', 'pkg')
+        foo_tmp = os.path.join(root, 'foo.tmp')
+        secret = os.path.join(root, 'secret.txt')
+        not_ignored = os.path.join(root, 'keepme.py')
+        os.makedirs(node_mod_dir)
+        self.assertTrue(match_gitignore(node_mod_dir, patterns, root))
+        self.assertTrue(match_gitignore(foo_tmp, patterns, root))
+        self.assertTrue(match_gitignore(secret, patterns, root))
+        self.assertFalse(match_gitignore(not_ignored, patterns, root))
 
     @mock.patch('main.GITHUB_REMOTE', 'https://example.com/repo.git')
     @mock.patch('main.GITHUB_TOKEN', 'dummytoken')
