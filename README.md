@@ -5,6 +5,7 @@ A simple Python bot that watches a local folder for file changes and automatical
 ## Features
 - Watches a folder for file changes (add, modify, delete).
 - Stages, commits, and pushes updates to your GitHub repo.
+- **Respects `.gitignore`**: Files/folders ignored by `.gitignore` will not trigger publishing.
 
 ## Requirements
 - Python 3.7+
@@ -27,6 +28,17 @@ COMMIT_AUTHOR=Your Name <your@email.com>
 - `GITHUB_TOKEN`: GitHub personal access token (with `repo` scope).
 - `COMMIT_AUTHOR`: Author string for commits.
 
+### Ignoring files/folders
+
+If you want to ignore certain files or folders (such as `node_modules`, temp files, build outputs, etc.), add them to a `.gitignore` file inside your local repo folder. The auto-publisher will respect these patterns: file changes matching your `.gitignore` will **not** trigger commits or pushes.
+
+Example:
+```
+node_modules/
+*.log
+some_temp_folder/
+```
+
 ## Usage
 
 1. Make sure your folder (under `REPO_PATH`) is already initialized with `git init` and has the correct remote URL set (`origin`). The script will add the remote if necessary.
@@ -34,7 +46,7 @@ COMMIT_AUTHOR=Your Name <your@email.com>
 
     python main.py
 
-3. Make file changes inside the watched folder. The bot will detect, commit, and push them automatically.
+3. Make file changes inside the watched folder. The bot will detect, commit, and push them automatically. Ignores files from `.gitignore`.
 
 ## Run Tests
 
