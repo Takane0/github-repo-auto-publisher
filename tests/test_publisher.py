@@ -50,8 +50,11 @@ class TestPublisher(unittest.TestCase):
             f.write('change')
         self.repo.git.add('--all')
         self.assertTrue(self.repo.is_dirty())
-        # Patch push method so we don't actually push
-        with mock.patch.object(self.repo.git, 'push', return_value=None) as mock_push:
+        with mock.patch.object(self.repo.git, 'push', return_value=None) as mock_push, \
+             mock.patch('main.COMMIT_PREFIX', '[BOT] '):
             stage_commit_push(self.repo)
             self.assertFalse(self.repo.is_dirty())
             mock_push.assert_called()
+            # Check commit message includes prefix
+            latest = self.repo.head.commit.message
+            self.assertTrue(latest.startswith('[BOT] '))
