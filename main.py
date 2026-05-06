@@ -15,6 +15,7 @@ REPO_PATH = os.getenv('REPO_PATH')
 GITHUB_REMOTE = os.getenv('GITHUB_REMOTE')
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 COMMIT_AUTHOR = os.getenv('COMMIT_AUTHOR', 'AutoPublisher <auto@local>')
+COMMIT_PREFIX = os.getenv('COMMIT_PREFIX', '')
 
 if not (REPO_PATH and GITHUB_REMOTE and GITHUB_TOKEN):
     print('Missing configuration. Check your .env file.')
@@ -94,7 +95,12 @@ def stage_commit_push(repo):
         repo.git.add('--all')
         # only commit if there are changes
         if repo.is_dirty(untracked_files=True):
-            commit_msg = f'Auto commit at {time.strftime("%Y-%m-%d %H:%M:%S")}'
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+            msg_prefix = COMMIT_PREFIX.strip()
+            if msg_prefix:
+                if not (msg_prefix.endswith(' ') or msg_prefix.endswith(':')):
+                    msg_prefix += ' '
+            commit_msg = f'{msg_prefix}Auto commit at {timestamp}'
             repo.index.commit(commit_msg, author=COMMIT_AUTHOR)
             # build HTTPS url with token
             url_with_token = GITHUB_REMOTE.replace('https://', f'https://{GITHUB_TOKEN}@')
@@ -121,6 +127,8 @@ def main():
         print('Respecting .gitignore patterns:')
         for pat in ignore_patterns:
             print(' ', pat)
+    if COMMIT_PREFIX:
+        print(f'Commit message prefix: "{COMMIT_PREFIX}"')
     try:
         while True:
             time.sleep(2)
