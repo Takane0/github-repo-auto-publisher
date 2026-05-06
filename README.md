@@ -6,6 +6,7 @@ A simple Python bot that watches a local folder for file changes and automatical
 - Watches a folder for file changes (add, modify, delete).
 - Stages, commits, and pushes updates to your GitHub repo.
 - **Respects `.gitignore`**: Files/folders ignored by `.gitignore` will not trigger publishing.
+- **Configurable commit message prefix** with `COMMIT_PREFIX`.
 
 ## Requirements
 - Python 3.7+
@@ -22,11 +23,13 @@ REPO_PATH=./my-local-repo-folder
 GITHUB_REMOTE=https://github.com/yourusername/yourrepo.git
 GITHUB_TOKEN=ghp_xxx123TOKENHERE456
 COMMIT_AUTHOR=Your Name <your@email.com>
+COMMIT_PREFIX=[AUTO] # Optional prefix for commit messages
 ```
 - `REPO_PATH`: Local path to the git repo folder to watch.
 - `GITHUB_REMOTE`: GitHub repository URL (use the HTTPS format).
 - `GITHUB_TOKEN`: GitHub personal access token (with `repo` scope).
 - `COMMIT_AUTHOR`: Author string for commits.
+- `COMMIT_PREFIX`: *(optional)* String to prefix auto-commit messages. If unset, no prefix is added.
 
 ### Ignoring files/folders
 
